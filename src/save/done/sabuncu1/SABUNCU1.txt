@@ -1,0 +1,71 @@
+SABUNCU1
+	Missing Numbers
+		277 ms
+		58 cycles
+		1.0 fitness
+
+		206 ms
+		32 cycles
+		1.0
+
+		301 ms
+		61 cycles
+		1.0 fitness
+
+		359 ms
+		68 cycles
+		1.0 fitness
+
+		338 ms
+		72 cycles
+		1.0 fitness
+
+	Sum-Product
+		281 ms
+		53 cycles
+		1.0 fitness
+
+		232 ms
+		38 cycles
+		1.0 fitness
+
+		299ms
+		54 cycles
+		1.0
+
+		311 ms
+		58 cycles
+		1.0
+
+		262 ms
+		50 cycles
+		1.0 
+
+	SumProduct (no subgrid constraint)
+		234ms
+		37cycles
+		1.0
+
+		235 ms
+		36cycles
+		1.0
+
+		291ms
+		59 cycles
+		1.0
+
+		352 ms
+		62 cycvles
+		1.0
+
+		254 ms
+		38 cycles
+		1.0
+
+
+
+
+
+
+
+

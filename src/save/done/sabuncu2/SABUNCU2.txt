@@ -1,0 +1,64 @@
+
+SABUNCU 2
+	Missing Numbers
+		867 ms
+		251 cycles
+		1.0
+
+		874 ms
+		262 cycles
+		1.0
+
+		415 ms
+		115 cycles
+		1.0
+
+		732 ms
+		203 cycles
+		1.0
+
+		709 ms
+		196 cycles
+		1.0
+
+	Sum-Product
+		798 ms
+		203 sycles
+		1.0
+
+		568 ms
+		160 cycles
+		1.0
+
+		730ms
+		208 cycles
+		1.0
+
+		489 ms
+		134 cycles
+		1.0
+
+		490ms
+		143 cycles
+		1.0
+	No-subgrid
+		725 ms
+		209cycles
+		1.0
+
+		676 ms
+		182 cycles
+		1.0
+
+		695 ms
+		204 cycles
+		1.0
+
+		744 ms
+		209 cycles
+		1.0
+
+		555
+		162
+		1
+		

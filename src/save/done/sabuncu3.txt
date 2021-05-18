@@ -1,0 +1,67 @@
+Missing Numbers
+	1007 ms
+	314 cycles
+	1.0
+
+	939 ms
+	260 cycles
+	1.0
+
+	909ms
+	283 cycles
+	1.0
+
+	837 ms
+	237 cycles
+	1.0
+
+
+	798 ms
+	249 cycles
+	1.0
+
+Sum-Product
+	750 ms
+	221 cycles
+	1.0
+
+	797ms
+	232 cycles
+	1.0
+
+	590 ms
+	159 cycles
+	1.0
+
+	1008 
+	325
+	1.0
+
+	928
+	297 cycles
+	1.0
+
+	899
+	295
+	1.0
+
+No intrinsic subgrid
+	899
+	295
+	1.0
+
+	696
+	184
+	1.0
+
+	703
+	195
+	1.0
+
+	842
+	256
+	1.0
+
+	1066
+	337
+	1.0
