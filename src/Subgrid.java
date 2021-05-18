@@ -1,37 +1,52 @@
-public class Subgrid{
-	boolean intrinsicConstraint;
-	int dimension;
-	int[][] values;
-	Subgrid(boolean intrinsicConstraint, int dimension){
-		this.intrinsicConstraint = intrinsicConstraint;
-		this.dimension = dimension;
-		values = new int[dimension][dimension];
-	}
-	void setValue(int column, int row, int value){
-		if(intrinsicConstraint){			
-			int index = getIndex(value);
-			//value exists in subrid already
-			if(index == -1){
-				values[row][column] = value;
-			}
-			else{
-				int temp = values[index/dimension][index%dimension];
-				values[index/dimension][index%dimension] = values[row][column];
-				values[row][column] = temp;
-			}
-		}
-		else{
-			values[row][column] = value;
-		}
-	}
-	private int getIndex(int value){
-		for(int i = 0; i < values.length; i++){
-			for(int j = 0; j < values.length; j++){
-				if(values[i][j] == value){
-					return i*dimension + j;
-				}
-			}
-		}
-		return -1;
-	}
+import java.util.Random;
+class Subgrid{
+  private int dimX;
+  private int dimY;
+  private int startX;
+  private int startY;
+  private int[] neededNum;
+  private Random rand;
+  public Subgrid(int startX, int startY, int dimX, int dimY){
+    this.dimX=dimX;
+    this.dimY=dimY;
+    this.startX=startX;
+    this.startY=startY;
+    rand=new Random();
+  }
+  
+  protected int getDimX(){
+    return dimX;
+  }
+  
+  protected int getDimY(){
+    return dimY;
+  }
+  
+  protected int getStartX(){
+    return startX;
+  }
+  
+  protected int getStartY(){
+    return startY;
+  }
+  
+  protected void setNeededNum(int[] neededNum){
+    this.neededNum=neededNum;
+  }
+  
+  protected int[] getNeededNum(){
+    for(int ctr=0, ptr=neededNum.length-1; ctr<neededNum.length; ctr++, ptr--){
+      int index=rand.nextInt(ptr+1);
+      int tmp=neededNum[index];
+      neededNum[index]=neededNum[ptr];
+      neededNum[ptr]=tmp;
+    }
+    return neededNum;
+  }
+  
+  protected boolean isBelong(int x, int y){
+    if(x>=startX && x<startX+dimX && y>=startY && y<startY+dimY)
+      return true;
+    return false;
+  }
 }

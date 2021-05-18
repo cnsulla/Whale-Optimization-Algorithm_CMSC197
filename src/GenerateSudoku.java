@@ -1,9 +1,9 @@
 import java.util.Random;
 class GenerateSudoku{
-	private int[][][] sudoku;
-	private Random rand=new Random();
-	GenerateSudoku(int[][][] sudoku, int percent){
-		this.sudoku=sudoku;
+  private int[][][] sudoku;
+  private Random rand=new Random();
+  public GenerateSudoku(int[][][] sudoku, int percent){
+    this.sudoku=sudoku;
     double p = percent * 0.01;
     int lensq = sudoku.length * sudoku.length;
     int snum = (int)(p * lensq);
@@ -51,11 +51,13 @@ class GenerateSudoku{
 				}
 			}
      */
-		}
-	protected int[][][] getSudoku(){
-		return sudoku;
-		}
-	private void sop(Object obj){
-		System.out.println(obj+"");
-		}
-	}
+  }
+  
+  protected int[][][] getSudoku(){
+    return sudoku;
+  }
+  
+  private void sop(Object obj){
+    System.out.println(obj+"");
+  }
+}

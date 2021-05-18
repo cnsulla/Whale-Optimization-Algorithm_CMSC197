@@ -4,25 +4,29 @@ import java.awt.Component;
 import java.awt.Graphics;
 
 public class Animation{
-	private JPanel pane;
-	private JLabel board;
-	private int sudokuArray[][][];
-	private int size, startX, startY, inc, btnX, btnY, ans;
-	private int increment[]={56,31,20};
-	protected JLabel btn[][][];
-	private generalPanel gp=new generalPanel();
+  private JPanel pane;
+  private JLabel board;
+  private int sudokuArray[][][];
+  private int size;
+  private int startX, startY;
+  private int inc;
+  private int btnX, btnY;
+  private int ans;
+  private int increment[]={56,31,20};
+  protected JLabel btn[][][];
+  private generalPanel gp=new generalPanel();
   ///
   BoardGraphics boardg;
-	Animation(){}
-	Animation(int sudokuArray[][][], JPanel pane){
-		this.pane=pane;
-		this.sudokuArray=sudokuArray;
-		pane.setVisible(true);
-		setConstants();
-		}
-	private void setConstants(){
-		size=sudokuArray.length;
-    /**
+  public Animation(int sudokuArray[][][], JPanel pane){
+    this.pane=pane;
+    this.sudokuArray=sudokuArray;
+    pane.setVisible(true);
+    setConstants();
+  }
+  
+  private void setConstants(){
+    size=sudokuArray.length;
+    /** legacy code
 		startX=size/6+6;
 		startY=86;
     if (size == 9 ) inc=increment[0];
@@ -44,13 +48,15 @@ public class Animation{
 		board=gp.addLabel(pane,"img/board/"+size+"x"+size+".png",0,84);
     **/
     boardg = new BoardGraphics(520, pane.getHeight());
-		boardg.setBounds(0, 0, 520, pane.getHeight());
+    boardg.setBounds(0, 0, 520, pane.getHeight());
     pane.add(boardg);
-		}
-	protected int[][][] getSudokuArray(){
-		return sudokuArray;
-		}
-	protected void changePic(int solution[][][]){
+  }
+  
+  protected int[][][] getSudokuArray(){
+    return sudokuArray;
+  }
+  
+  protected void changePic(int solution[][][]){
     //sorry no more cool animation
     /*
 		for(int row=0, row2=size-1; row<size; row++, row2--){
@@ -76,17 +82,19 @@ public class Animation{
     */
     boardg.setBoard(solution);
     boardg.repaint();
-		sudokuArray=solution;
-		}
-	protected void setSudoku(int solution[][][]){
-		sudokuArray=solution;
-		}
-	protected void decompose(){
-		pane.removeAll();
-		board=null;
-		sudokuArray=null;
-		btn=null;
-		gp=null;
-		pane.setVisible(false);
-		}
-	}
+    sudokuArray=solution;
+  }
+  
+  protected void setSudoku(int solution[][][]){
+    sudokuArray=solution;
+  }
+  
+  protected void decompose(){
+    pane.removeAll();
+    board=null;
+    sudokuArray=null;
+    btn=null;
+    gp=null;
+    pane.setVisible(false);
+  }
+}

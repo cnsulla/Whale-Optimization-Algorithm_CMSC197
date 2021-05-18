@@ -1,220 +1,225 @@
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.ImageIcon;
-import javax.swing.Icon;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JFrame;
-import javax.swing.JRadioButton;
-import javax.swing.JComboBox;
-import javax.swing.table.TableColumn;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JDialog;
-import javax.swing.JSpinner;
-import javax.swing.JCheckBox;
-import javax.swing.JList;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerDateModel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import java.awt.Container;
-import java.awt.Font;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Image;
-import java.awt.FileDialog;
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
 import java.util.Calendar;
 
 public class generalPanel{
-	private JLabel bg;
-	protected JPanel solve,special;
-	protected JPanel panel[]=new JPanel[8];
-	protected JButton play, create, options, exit, open, help;
-	public generalPanel(){}
-	public generalPanel(Container container){
-
-		special=addPanel(container, 0,0,800,625);
-		solve=addPanel(container, 0,0,800,625);
-		for(int ctr=0; ctr<4; ctr++){
-			panel[ctr]=addPanel(container, 0,0,800,625);
-			}
-		panel[4]=addPanel(container, 0,0,513,81);
-		panel[5]=addPanel(container, 0,0,513,625);
-		for(int ctr=6; ctr<8; ctr++){
-			panel[ctr]=addPanel(container, 0,0,800,625);
-			}
-		play=addButton(panel[7], "img/main/play.png", "img/main/h_play.png",325,110);
-		open=addButton(panel[7], "img/main/open.png", "img/main/h_open.png",480,190);
-		create=addButton(panel[7], "img/main/create.png", "img/main/h_create.png",190,190);
-		options=addButton(panel[7], "img/main/options.png", "img/main/h_options.png",177,350);
-		help=addButton(panel[7], "img/main/help.png", "img/main/h_help.png", 475,345);
-		exit=addButton(panel[7], "img/main/exit.png", "img/main/h_exit.png", 330,425);
-		bg=addLabel(panel[7],"img/bg/main.png",0,0);
-		setVisible(7);
-		}
-	protected void setVisibleButton(boolean isVisible){
-		play.setVisible(isVisible);
-		open.setVisible(isVisible);
-		create.setVisible(isVisible);
-		options.setVisible(isVisible);
-		help.setVisible(isVisible);
-		exit.setVisible(isVisible);
-		}
-	protected void setVisible(int num){
-		solve.setVisible(num==-1);
-		special.setVisible(num==-2);
-		for(int ctr=0;ctr<8; ctr++)
-			panel[ctr].setVisible(false);
-		if(num==5){
-			panel[6].setVisible(true);
-			panel[4].setVisible(true);
-			}
-		if(num!=-1 && num!=-2)
-			panel[num].setVisible(true);
-		}
+  private JLabel bg;
+  protected JPanel solve,special;
+  protected JPanel panel[]=new JPanel[8];
+  protected JButton play, create, options, exit, open, help;
+  public generalPanel(){}
+  public generalPanel(Container container){
+    special=addPanel(container, 0,0,800,625);
+    solve=addPanel(container, 0,0,800,625);
+    for(int ctr=0; ctr<4; ctr++){
+      panel[ctr]=addPanel(container, 0,0,800,625);
+    }
+    panel[4]=addPanel(container, 0,0,513,81);
+    panel[5]=addPanel(container, 0,0,513,625);
+    for(int ctr=6; ctr<8; ctr++){
+      panel[ctr]=addPanel(container, 0,0,800,625);
+    }
+    play=addButton(panel[7],
+            "img/main/play.png", 
+            "img/main/h_play.png",
+            325,110);
+    open=addButton(panel[7], 
+            "img/main/open.png", 
+            "img/main/h_open.png",
+            480,190);
+    create=addButton(panel[7], 
+            "img/main/create.png", 
+            "img/main/h_create.png",
+            190,190);
+    options=addButton(panel[7], 
+            "img/main/options.png", 
+            "img/main/h_options.png",
+            177,350);
+    help=addButton(panel[7], 
+            "img/main/help.png", 
+            "img/main/h_help.png", 
+            475,345);
+    exit=addButton(panel[7], 
+            "img/main/exit.png", 
+            "img/main/h_exit.png", 
+            330,425);
+    bg=addLabel(panel[7], "img/bg/main.png", 0, 0);
+    setVisible(7);
+  }
+  
+  protected void setVisibleButton(boolean isVisible){
+    play.setVisible(isVisible);
+    open.setVisible(isVisible);
+    create.setVisible(isVisible);
+    options.setVisible(isVisible);
+    help.setVisible(isVisible);
+    exit.setVisible(isVisible);
+  }
+  
+  protected void setVisible(int num){
+    solve.setVisible(num==-1);
+    special.setVisible(num==-2);
+    for(int ctr=0;ctr<8; ctr++)
+      panel[ctr].setVisible(false);
+    if(num==5){
+      panel[6].setVisible(true);
+      panel[4].setVisible(true);
+    }
+    if(num!=-1 && num!=-2)
+      panel[num].setVisible(true);
+  }
+  
 //JPanel
-	protected JPanel addPanel(Container container, int x, int y, int width, int height){
-		JPanel pane=new JPanel();
-		pane.setBounds(x, y, width, height);
-		pane.setLayout(null);
-		pane.setVisible(true);
-		pane.setBackground(new Color(255,255,150,100));
-		pane.setOpaque(false);
-		container.add(pane);
-		return pane;
-		}
+  protected JPanel addPanel(Container container, 
+          int x, int y, int width, int height){
+    JPanel pane=new JPanel();
+    pane.setBounds(x, y, width, height);
+    pane.setLayout(null);
+    pane.setVisible(true);
+    pane.setBackground(new Color(255,255,150,100));
+    pane.setOpaque(false);
+    container.add(pane);
+    return pane;
+  }
+  
 //JLabel
-	protected JLabel addLabel(Container pane, String pix, int x, int y){
-		Icon img=new ImageIcon(pix);
-		JLabel label= new JLabel();
-		label.setIcon(img);
-		pane.add(label);
-		label.setBounds(x, y, img.getIconWidth(), img.getIconHeight());
-		img=null;
-		return label;
-		}
-	protected JLabel addLabel(Container pane, ImageIcon pix, int x, int y){
-		JLabel label= new JLabel();
-		label.setIcon(pix);
-		pane.add(label);
-		label.setBounds(x, y, pix.getIconWidth(), pix.getIconHeight());
-		pix=null;
-		return label;
-		}
-	protected JLabel addLabel(Container pane, String string,int x, int y, int width, int height){
-		JLabel label= new JLabel(string);
-		pane.add(label);
-		label.setBounds(x, y,width, height);
-		label.setFont(new Font("Arial", Font.PLAIN, 12));
-		label.setForeground(Color.black);
-		return label;
-		}
-	protected JLabel addLabel(Container pane, String string,Color color,int x, int y, int width, int height, int alignment){
-		JLabel label= new JLabel(string, alignment);
-		pane.add(label);
-		label.setBounds(x, y,width, height);
-		label.setFont(new Font("Arial", Font.BOLD, 14));
-		label.setForeground(color);
-		return label;
-		}
-	protected JLabel addLabel(Container pane, String string,int x, int y, int width, int height, int alignment){
-		JLabel label= new JLabel(string, alignment);
-		pane.add(label);
-		label.setBounds(x, y,width, height);
-		label.setFont(new Font("Arial", Font.PLAIN, 12));
-		label.setForeground(Color.black);
-		return label;
-		}
-	protected JLabel addInvisibleLabel(Container pane, String string, int x, int y){
-		Icon img=new ImageIcon(string);
-		JLabel label= new JLabel();
-		label.setVisible(false);
-		label.setIcon(img);
-		pane.add(label);
-		label.setBounds(x, y, img.getIconWidth(), img.getIconHeight());
-		label.setVisible(false);
-		return label;
-		}
+  protected JLabel addLabel(Container pane, String pix, int x, int y){
+    Icon img=new ImageIcon(pix);
+    JLabel label= new JLabel();
+    label.setIcon(img);
+    pane.add(label);
+    label.setBounds(x, y, img.getIconWidth(), img.getIconHeight());
+    img=null;
+    return label;
+  }
+  
+  protected JLabel addLabel(Container pane, ImageIcon pix, int x, int y){
+    JLabel label= new JLabel();
+    label.setIcon(pix);
+    pane.add(label);
+    label.setBounds(x, y, pix.getIconWidth(), pix.getIconHeight());
+    pix=null;
+    return label;
+  }
+  
+  protected JLabel addLabel(Container pane, String string,int x, int y, int width, int height){
+    JLabel label= new JLabel(string);
+    pane.add(label);
+    label.setBounds(x, y,width, height);
+    label.setFont(new Font("Arial", Font.PLAIN, 12));
+    label.setForeground(Color.black);
+    return label;
+  }
+  
+  protected JLabel addLabel(Container pane, String string,Color color,int x, int y, int width, int height, int alignment){
+    JLabel label= new JLabel(string, alignment);
+    pane.add(label);
+    label.setBounds(x, y,width, height);
+    label.setFont(new Font("Arial", Font.BOLD, 14));
+    label.setForeground(color);
+    return label;
+  }
+  
+  protected JLabel addLabel(Container pane, String string,int x, int y, int width, int height, int alignment){
+    JLabel label= new JLabel(string, alignment);
+    pane.add(label);
+    label.setBounds(x, y,width, height);
+    label.setFont(new Font("Arial", Font.PLAIN, 12));
+    label.setForeground(Color.black);
+    return label;
+  }
+  
+  protected JLabel addInvisibleLabel(Container pane, String string, int x, int y){
+    Icon img=new ImageIcon(string);
+    JLabel label= new JLabel();
+    label.setVisible(false);
+    label.setIcon(img);
+    pane.add(label);
+    label.setBounds(x, y, img.getIconWidth(), img.getIconHeight());
+    label.setVisible(false);
+    return label;
+  }
+  
   protected JLabel addInvisibleLabel(Container pane, String string, int x, int y, int w, int h){
     JLabel label = addInvisibleLabel(pane, string, x, y);
     Image img = ((ImageIcon)label.getIcon()).getImage();
     label.setIcon(new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_FAST)));
-		return label;
-		}
+    return label;
+  }
+  
 //JButton
-	protected JButton addButton(Container pane, String string, int x, int y, int width, int height){
-		JButton button=new JButton(string);
-		pane.add(button);
-		button.setBounds(x,y,width,height);
-		button.setCursor(new Cursor(12));
-		return button;
-		}
-	protected JButton addButton(Container pane, String string, String hover,int x, int y){
-		JButton button=new JButton();
-		Icon img=new ImageIcon(string);
-		button.setIcon(img);
-		img=new ImageIcon(hover);
-		button.setRolloverIcon(img);
-		button.setPressedIcon(img);
-		pane.add(button);
-		setButton(button);
-		button.setBounds(x,y,img.getIconWidth(),img.getIconHeight());
-		return button;
-		}
-	protected JButton gameButton(Container pane, String string,int x, int y){
-		Icon img=new ImageIcon(string);
-		JButton button=new JButton(img);
-		pane.add(button);
-		button.setBounds(x,y,img.getIconWidth(),img.getIconHeight());
-		button.setContentAreaFilled(false);
-		button.setBorderPainted(false);
-		button.setBorder(null);
-		button.setOpaque(false);
-		setButton(button);
-		return button;
-		}
+  protected JButton addButton(Container pane, String string, int x, int y, int width, int height){
+    JButton button=new JButton(string);
+    pane.add(button);
+    button.setBounds(x,y,width,height);
+    button.setCursor(new Cursor(12));
+    return button;
+  }
+  
+  protected JButton addButton(Container pane, String string, String hover,int x, int y){
+    JButton button=new JButton();
+    Icon img=new ImageIcon(string);
+    button.setIcon(img);
+    img=new ImageIcon(hover);
+    button.setRolloverIcon(img);
+    button.setPressedIcon(img);
+    pane.add(button);
+    setButton(button);
+    button.setBounds(x,y,img.getIconWidth(),img.getIconHeight());
+    return button;
+  }
+  
+  protected JButton gameButton(Container pane, String string,int x, int y){
+    Icon img=new ImageIcon(string);
+    JButton button=new JButton(img);
+    pane.add(button);
+    button.setBounds(x,y,img.getIconWidth(),img.getIconHeight());
+    button.setContentAreaFilled(false);
+    button.setBorderPainted(false);
+    button.setBorder(null);
+    button.setOpaque(false);
+    setButton(button);
+    return button;
+  }
+  
   protected JButton gameButton(Container pane, String string,int x, int y, int w, int h) {
     JButton button = gameButton(pane, string, x, y);
     //this is fine because button.getIcon() is sure to be an ImageIcon
     Image img = ((ImageIcon)button.getIcon()).getImage();
     button.setIcon(new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_FAST)));
-		return button;
-		}
-	protected JButton addButton(Container pane, String string, int x, int y){
-		JButton button=new JButton();
-		Icon img=new ImageIcon(string);
-		button.setIcon(img);
-		pane.add(button);
-		setButton(button);
-		button.setBounds(x,y,img.getIconWidth(),img.getIconHeight());
-		return button;
-		}
-	private void setButton(JButton button){
-		button.setContentAreaFilled(false);
-		button.setBorderPainted(false);
-		button.setBorder(null);
-		button.setOpaque(false);
-		button.setCursor(new Cursor(12));
-		}
+    return button;
+  }
+  
+  protected JButton addButton(Container pane, String string, int x, int y){
+    JButton button=new JButton();
+    Icon img=new ImageIcon(string);
+    button.setIcon(img);
+    pane.add(button);
+    setButton(button);
+    button.setBounds(x,y,img.getIconWidth(),img.getIconHeight());
+    return button;
+  }
+  
+  private void setButton(JButton button){
+    button.setContentAreaFilled(false);
+    button.setBorderPainted(false);
+    button.setBorder(null);
+    button.setOpaque(false);
+    button.setCursor(new Cursor(12));
+  }
+  
 //JRadioButton
-	protected JRadioButton addRadioButton(Container pane, String string, int x, int y, int width, int height, int font){
-		JRadioButton button=new JRadioButton(string);
-		pane.add(button);
-		button.setBounds(x,y,width,height);
-		button.setBorder(BorderFactory.createLoweredBevelBorder());
-		button.setContentAreaFilled(false);
-		button.setFont(new Font("Arial", Font.PLAIN, font));
-		return button;
-		}
+  protected JRadioButton addRadioButton(Container pane, String string, int x, int y, int width, int height, int font){
+    JRadioButton button=new JRadioButton(string);
+    pane.add(button);
+    button.setBounds(x,y,width,height);
+    button.setBorder(BorderFactory.createLoweredBevelBorder());
+    button.setContentAreaFilled(false);
+    button.setFont(new Font("Arial", Font.PLAIN, font));
+    return button;
+  }
+  
 //JTextField
 	protected JTextField addTextField(Container pane, String string, int x, int y, int width, int height){
 		JTextField area= new JTextField(string);
