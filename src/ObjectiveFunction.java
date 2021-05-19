@@ -1,3 +1,3 @@
-public abstract class ObjectiveFunction {
-  public abstract double getFitness(int[] boardState);
+public interface ObjectiveFunction {
+  public double getFitness(int[][][] boardState);
 }

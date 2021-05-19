@@ -1,13 +1,161 @@
 import java.util.ArrayList;
+import java.util.Random;
 
-public class WOA {
+public class WOA implements Runnable {
+  public final int population;
+  public final int maximumIteration;
+  public final int dimensions;
+  public final int lowerBound;
+  public final int upperBound;
+  public final int sudokuWidth;
+  private int[][][] sudoku;
+  private SubGrid[] bestSoln;
+  private double bestFit;
+  private int iter;
+  private ObjectiveFunction fitnessFunc;
+  /*
+   *  sudokuWidth should be equal to x if the 
+   *  sudoku grid is x * x
+   *  sudokuWidth also dictates the dimensions of the WOA
+   *  since each subgrid is used as a dimension
+   */
+  public WOA(int[][][] sudoku, ObjectiveFunction fitnessFunc,
+          int sudokuWidth, int population, int maximumIteration) {
+    this.dimensions = sudokuWidth;
+    this.population = population;
+    this.maximumIteration = maximumIteration;
+    this.lowerBound = 1;
+    this.upperBound = sudokuWidth;
+    this.sudokuWidth = sudokuWidth;
+    this.sudoku = sudoku;
+    this.fitnessFunc = fitnessFunc;
+  }
   
-  private static class SubGrid {
+  @Override
+  public void run() {
+    iter = 0;
+    Random random = new Random(System.currentTimeMillis());
+    bestSoln = subgridify(ArrayUtil.copy(sudoku), sudokuWidth);
+    //change to negative infinity if maximize
+    bestFit = Double.POSITIVE_INFINITY; 
+      
+    SubGrid[][] pop = new SubGrid[population][sudokuWidth];
+    //initial population initialization
+    for (int i = 0; i < population; ++i) {
+      pop[i] = subgridify(ArrayUtil.copy(sudoku), sudokuWidth);
+      //note the subgrid is randomized at SubGrid initialization
+    }
+    
+    //these variables remain constant and i dont like floating point division
+    double aDelta = 2. / maximumIteration;
+    double a2Delta = -1. / maximumIteration;
+    
+    //WOA main loop 
+    while (iter < maximumIteration) {
+      iter++;
+      
+      for (int i = 0; i < population; ++i) {
+        //pops on the same row of the array share a sudoku
+        double fitness = fitnessFunc.getFitness(population[i][0].getSudoku());
+        //change to > if maximize
+        if (fitness < bestFit) {
+          bestSoln = population[i];
+          bestFit = fitness;
+        }
+      }
+      
+      //eq 2.3 a linearly decreases from 2 to 0
+      double a = 2. - iter * aDelta;
+      //i dont get this. the reading(eq 2.5) just says l is random from [-1, 1]
+      double a2 = -1. + iter * a2Delta;
+      
+      for (int i = 0; i < population; ++i) {
+        double r1 = random.nextDouble();
+        double r2 = random.nextDouble();
+        
+        double A = 2. * a * r1 - a; //eq 2.3
+        double C = 2. * r2; //eq 2.4
+        
+        //parameter for encircling behaviour
+        double l = (a2 - 1) * random.nextDouble() + 1;
+        
+        double p = random.nextDouble();
+        for (int j = 0; j < dimensions; ++j) {
+          //eq 2.6
+          if (p < 0.5) {
+            SubGrid[] lead = bestSoln;
+            //use random leader if A >= 1
+            if (Math.abs(A) >= 1.) {
+              int leadRandIX = random.nextInt(population);
+              lead = pop[leadRandIX];
+            }
+            int updateIX = pop[i][j].randomNonStartIndex();
+            /*
+             * updateIX should only be < 0 if all values on the SubGrid
+             * are given, so there would be no need to update the value
+             * if updateIX < 0
+             */
+            if (updateIX < 0) {
+              int leaderVal = lead[j].getValue(ix);
+              int cpopVal = pop[i][j].getValue(ix);
+              double D = Math.abs(C * leaderVal - cpopVal);
+              //agents[i][j] = lead[j] - A * D
+              //SudokuBee uses ceiling
+              int newValue = (int)Math.ceil(leaderVal - A * D);
+              /*
+               * idk maybe this should be changed #######################
+               * the WOA algorithm given enforces the bounds before
+               * updating the value but then it also enforces the bounds
+               * before checking the fitness so i dont think this will
+               * change anything
+               */
+              if (newValue < lowerBound) newValue = lowerBound;
+              if (newValue > upperBound) newValue = upperBound;
+              pop[i][j].setValue(ix, newValue);
+            }
+          }
+          //encircling behaviour
+          else {
+            int ix = pop[i][j].randomNonStartIndex();
+            if (ix < 0) {
+              int leaderVal = bestSoln[j].getValue(ix);
+              int cpopVal = pop[i][j].getValue(ix);
+              double D2Lead = Math.abs(leaderVal - cpopVal);
+              //eq 2.5
+              int newValue = (int)Math.ceil(
+                D2Lead * Math.exp(B_CONSTANT * l) * 
+                Math.cos(2 * Math.PI * l) + leaderVal
+              );
+              pop[i][j].setValue[ix][newValue];
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  private SubGrid[] subgridify(int[][][] sudoku, int w) {
+    SubGrid[] output = new SubGrid[w];
+    int gridW = (int)Math.sqrt(w);
+    
+    int count = 0;
+    for (int i = 0; i < w; i += gridW) {
+      for (int j = 0; j < w; j += gridW) {
+        //x is j, y is i
+        output[count++] = new SubGrid(sudoku, j * gridW, i * gridW, 
+                                  gridW, true);
+      }
+    }
+    return output;
+  }
+  
+  private class SubGrid {
     private final int[][][] sudoku;
     public final int x;
     public final int y;
     public final int w;
     public final boolean constrained;
+    private ArrayList<String> nonStarts;
     
     //subgrid expects sudoku to be a valid sudoku array
     public SubGrid(int[][][] sudoku, int x, int y, int w, boolean constrain) {
@@ -16,21 +164,43 @@ public class WOA {
       this.x = x;
       this.y = y;
       this.w = w;
-      if (constrain)
-        fillConstrained();
-      else {
-        for (int i = x; i < x + w; ++i) {
-          for (int j = 0; j < y + w; ++j) {
-            if (sudoku[i][j][1] == 0) { //if not given assign random value
+      nonStarts = new ArrayList<String>();
+      for (int i = x; i < x + w; ++i) {
+        for (int j = 0; j < y + w; ++j) {
+          if (sudoku[i][j][1] == 0) { 
+            //add to nonStarts for picking random index later
+            int ix = (i - x) + (j - y) * w;
+            nonStarts.add(ix + "");
+            if (!constrained) {
+              //if not constrained fill with random value
               sudoku[i][j][0] = (int)(Math.random() * w * w) + 1;
             }
           }
         }
       }
+      
+      if (constrained) {
+        fillConstrained();
+      }
     }
     
     public SubGrid(int[][][] sudoku, int x, int y, int w) {
       this(sudoku, x, y, w, true);
+    }
+    
+    public int randomNonStartIndex() {
+      if (nonStarts.size() == 0) return -1;
+      int ix = (int)(Math.random() * nonStarts.size());
+      try {
+        return Integer.parseInt(nonStarts.get(ix));
+      } catch (Exception e) {
+        return -1;
+      }
+      return -1;
+    }
+    
+    public int[][][] getSudoku() {
+      return sudoku;
     }
     
     public void fillConstrained() {
