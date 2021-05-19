@@ -254,19 +254,17 @@ public class WOA implements Runnable {
       int currVal = sudoku[x + xOff][y + yOff][0];
       if (currVal == val) return; //no need to swap or do anything
       boolean isGiven = false;
-      boolean found = false;
+      
+      outerLoop:
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
           if (sudoku[i][j][0] == val) { //swap
-            found = true;
             isGiven = (sudoku[i][j][1] == 1);
             if (!isGiven) //only swap if the number is not a given
               sudoku[i][j][0] = currVal; //assign old value to swap target
-            break;
+            break outerLoop;
           }
-        }
-        if (found) break; //break only breaks out of the inner loop
-                          //this looks bad but idk how to change
+        }        
       }
       
       if (!isGiven) //only swap if the number is not a given
