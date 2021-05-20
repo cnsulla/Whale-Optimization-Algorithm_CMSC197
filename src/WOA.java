@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class WOA implements Runnable {
+  public static final double B_CONSTANT = 1.;
   public final int population;
   public final int maximumIteration;
   public final int dimensions;
@@ -56,10 +57,10 @@ public class WOA implements Runnable {
       
       for (int i = 0; i < population; ++i) {
         //pops on the same row of the array share a sudoku
-        double fitness = fitnessFunc.getFitness(population[i][0].getSudoku());
+        double fitness = fitnessFunc.getFitness(pop[i][0].getSudoku());
         //change to > if maximize
         if (fitness < bestFit) {
-          bestSoln = population[i];
+          bestSoln = pop[i];
           bestFit = fitness;
         }
       }
@@ -96,8 +97,8 @@ public class WOA implements Runnable {
              * if updateIX < 0
              */
             if (updateIX < 0) {
-              int leaderVal = lead[j].getValue(ix);
-              int cpopVal = pop[i][j].getValue(ix);
+              int leaderVal = lead[j].getValue(updateIX);
+              int cpopVal = pop[i][j].getValue(updateIX);
               double D = Math.abs(C * leaderVal - cpopVal);
               //agents[i][j] = lead[j] - A * D
               //SudokuBee uses ceiling
@@ -111,7 +112,7 @@ public class WOA implements Runnable {
                */
               if (newValue < lowerBound) newValue = lowerBound;
               if (newValue > upperBound) newValue = upperBound;
-              pop[i][j].setValue(ix, newValue);
+              pop[i][j].setValue(updateIX, newValue);
             }
           }
           //encircling behaviour
@@ -126,12 +127,32 @@ public class WOA implements Runnable {
                 D2Lead * Math.exp(B_CONSTANT * l) * 
                 Math.cos(2 * Math.PI * l) + leaderVal
               );
-              pop[i][j].setValue[ix][newValue];
+              pop[i][j].setValue(ix, newValue);
             }
           }
         }
       }
     }
+  }
+  
+  public boolean isDone() {
+    return iter >= maximumIteration;
+  }
+  
+  public int[][][] getBestSolution() {
+    return ArrayUtil.copy(bestSoln[0].getSudoku());
+  }
+  
+  public String getCycles() {
+    return iter + "";
+  }
+  
+  public double getFitness() {
+    return bestFit;
+  }
+  
+  public void decompose() {
+    //let the garbage collector handle it
   }
   
   private SubGrid[] subgridify(int[][][] sudoku, int w) {
@@ -196,7 +217,6 @@ public class WOA implements Runnable {
       } catch (Exception e) {
         return -1;
       }
-      return -1;
     }
     
     public int[][][] getSudoku() {
@@ -255,20 +275,20 @@ public class WOA implements Runnable {
       if (currVal == val) return; //no need to swap or do anything
       boolean isGiven = false;
       
-      outerLoop:
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
           if (sudoku[i][j][0] == val) { //swap
             isGiven = (sudoku[i][j][1] == 1);
-            if (!isGiven) //only swap if the number is not a given
+            if (!isGiven) { //only swap if the number is not a given
               sudoku[i][j][0] = currVal; //assign old value to swap target
-            break outerLoop;
+              sudoku[x + xOff][y + yOff][0] = val; // assign new value
+            }
+            //only search the first instance of the number
+            return;
           }
         }        
       }
       
-      if (!isGiven) //only swap if the number is not a given
-        sudoku[x + xOff][y + yOff][0] = val; // assign new value
     }
     
     public int width() {

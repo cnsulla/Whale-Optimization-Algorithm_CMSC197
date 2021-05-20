@@ -505,44 +505,50 @@ public class SudokuBee extends Thread{
         PrintResult printer=new PrintResult("results/.xls");
         int sudoku[][][]=board.getSudokuArray();
         //System.out.println("whats hah");
-        ABC abc=new ABC(printer, sudoku, numEmp,
-                numOnlook, numCycle, options.getPenaltyType());
+        int width = sudoku.length;
+        WOA woa = new WOA(sudoku, null, width, numEmp, numCycle);
+        /*
+         * WOA woa = new WOA(printer, sudoku, numEmp,
+         *                 numOnlook, numCycle, options.getPenaltyType());
+         */
         Animation animate=new Animation(sudoku, GP.special);
         board.decompose();
         board=null;
-        abc.start();
+        Thread Twoa = new Thread(woa);
+        Twoa.start();
         delay(100);
-        while(!abc.isDone()){
+        while(!woa.isDone()){
           delay(100);
-          animate.changePic(abc.getBestSolution());
+          animate.changePic(woa.getBestSolution());
         }
         animate.decompose();
         animate=null;
         if(generate){
-          GenerateSudoku gen=new GenerateSudoku(abc.getBestSolution(), options.getFillPercent());
+          GenerateSudoku gen = new GenerateSudoku(woa.getBestSolution(), 
+                                      options.getFillPercent());
           board(gen.getSudoku(), false);
           gen=null;
           isSolved=false;
-          abc=null;
+          woa=null;
         }
         else if (ohwhatasweetfilling) {
             ohwhatasweetfilling = false;
-            int[][][] ns = SudokuChecker.dotheThing(abc.getBestSolution(), options.getFillPercent());
+            int[][][] ns = SudokuChecker.dotheThing(woa.getBestSolution(), options.getFillPercent());
             board(ns, false);
             isSolved=false;
-            abc=null;
+            woa=null; //why tho
             JOptionPane.showMessageDialog(frame, "Sudoku Generated");
         }
         else{
-          if(abc.getFitness()==1){
+          if(woa.getFitness()==1){
             exit(8);
-            board=new UIBoard(abc.getBestSolution(), GP.panel[5]);
+            board=new UIBoard(woa.getBestSolution(), GP.panel[5]);
           }
           else{
-            board(abc.getBestSolution(), false);
+            board(woa.getBestSolution(), false);
             isSolved=false;
           }
-          abc=null;
+          woa=null;
         }
         printer.close();
         printer.delete();
@@ -554,16 +560,21 @@ public class SudokuBee extends Thread{
         PrintResult printer=new PrintResult(file);
         status.setVisible(false);
         String cycle="", time="";
-        ABC abc=new ABC(printer, board.getSudokuArray(),
-                numEmp,numOnlook, numCycle, options.getPenaltyType());
-        abc.start();
+        /*
+         * ABC abc=new ABC(printer, board.getSudokuArray(),
+         *      numEmp,numOnlook, numCycle, options.getPenaltyType());
+         */
+        int width = board.getSudokuArray().length;
+        WOA woa = new WOA(board.getSudokuArray(), null, width, numEmp, numCycle);
+        Thread Twoa = new Thread(woa);
+        Twoa.start();
         double startTime=printer.getTime();
-        while(!abc.isDone()) {
+        while(!woa.isDone()) {
           //wait
         }
         double end=(printer.getTime());
         double seconds=((end-startTime)/1000);
-        printer.print("\nCycles:\t "+abc.getCycles()+"\nTime:\t"+seconds);
+        printer.print("\nCycles:\t "+woa.getCycles()+"\nTime:\t"+seconds);
         printer.close();
         printer=null;
         game.setVisible(0);
@@ -575,16 +586,16 @@ public class SudokuBee extends Thread{
         }
         board.decompose();
         board=null;
-        if(abc.getFitness()==1){
+        if(woa.getFitness()==1){
           exit(8);
-          board=new UIBoard(abc.getBestSolution(), GP.panel[5]);
+          board=new UIBoard(woa.getBestSolution(), GP.panel[5]);
         }
         else{
-          board(abc.getBestSolution(), false);
+          board(woa.getBestSolution(), false);
           isSolved=false;
         }
-        abc.decompose();
-        abc=null;
+        woa.decompose();
+        woa=null;
         rt=null;
         status.setVisible(true);
       }
