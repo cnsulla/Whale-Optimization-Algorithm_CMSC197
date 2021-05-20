@@ -6,6 +6,8 @@ import java.awt.Point;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.File;
+import fitnessfunc.*;
+
 public class SudokuBee extends Thread{
   private generalPanel GP;
   private UIGame game;
@@ -29,8 +31,9 @@ public class SudokuBee extends Thread{
   private JFrame frame=new JFrame();
   private Container container=frame.getContentPane();
   private String saveFileName="";
-  ///this code doesnt feel like java
   private boolean ohwhatasweetfilling = false;
+  private MissingValues MissingNumbersFunction;
+  
   public SudokuBee(){
     frame.setTitle(" Sudoku Bee");
     snd=new Tunog("snd/1.mid");
@@ -43,6 +46,8 @@ public class SudokuBee extends Thread{
     frame.setLocationRelativeTo(null);
     frame.setResizable(false);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    
+    MissingNumbersFunction = new MissingValues();
   }
   
   private void menu(){
@@ -506,7 +511,8 @@ public class SudokuBee extends Thread{
         int sudoku[][][]=board.getSudokuArray();
         //System.out.println("whats hah");
         int width = sudoku.length;
-        WOA woa = new WOA(sudoku, null, width, numEmp, numCycle);
+        ObjectiveFunction func = MissingNumbersFunction;
+        WOA woa = new WOA(sudoku, func, width, numEmp, numCycle);
         /*
          * WOA woa = new WOA(printer, sudoku, numEmp,
          *                 numOnlook, numCycle, options.getPenaltyType());
@@ -565,7 +571,8 @@ public class SudokuBee extends Thread{
          *      numEmp,numOnlook, numCycle, options.getPenaltyType());
          */
         int width = board.getSudokuArray().length;
-        WOA woa = new WOA(board.getSudokuArray(), null, width, numEmp, numCycle);
+        ObjectiveFunction func = MissingNumbersFunction;
+        WOA woa = new WOA(board.getSudokuArray(), func, width, numEmp, numCycle);
         Thread Twoa = new Thread(woa);
         Twoa.start();
         double startTime=printer.getTime();

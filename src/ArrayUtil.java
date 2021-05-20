@@ -13,4 +13,13 @@ public class ArrayUtil {
     
     return out;
   }
+  
+  public static void printSudoku(int[][][] ar) {
+    for (int i = 0; i < ar.length; ++i) {
+      for (int j = 0; j < ar.length; ++j) {
+        System.out.print(ar[j][i][0] + ", ");
+      }
+      System.out.println();
+    }
+  }
 }

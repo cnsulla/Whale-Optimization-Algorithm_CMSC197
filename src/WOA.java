@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Random;
+import fitnessfunc.ObjectiveFunction;
 
 public class WOA implements Runnable {
   public static final double B_CONSTANT = 1.;
@@ -36,9 +37,12 @@ public class WOA implements Runnable {
   public void run() {
     iter = 0;
     Random random = new Random(System.currentTimeMillis());
+    ArrayUtil.printSudoku(sudoku);
     bestSoln = subgridify(ArrayUtil.copy(sudoku), sudokuWidth);
-    //change to negative infinity if maximize
-    bestFit = Double.POSITIVE_INFINITY; 
+    System.out.println("filled");
+    ArrayUtil.printSudoku(bestSoln[0].getSudoku());
+    //change to positive infinity if minimize
+    bestFit = Double.NEGATIVE_INFINITY; 
       
     SubGrid[][] pop = new SubGrid[population][sudokuWidth];
     //initial population initialization
@@ -58,8 +62,8 @@ public class WOA implements Runnable {
       for (int i = 0; i < population; ++i) {
         //pops on the same row of the array share a sudoku
         double fitness = fitnessFunc.getFitness(pop[i][0].getSudoku());
-        //change to > if maximize
-        if (fitness < bestFit) {
+        //change to < if minimize
+        if (fitness > bestFit) {
           bestSoln = pop[i];
           bestFit = fitness;
         }
@@ -96,7 +100,7 @@ public class WOA implements Runnable {
              * are given, so there would be no need to update the value
              * if updateIX < 0
              */
-            if (updateIX < 0) {
+            if (updateIX >= 0) {
               int leaderVal = lead[j].getValue(updateIX);
               int cpopVal = pop[i][j].getValue(updateIX);
               double D = Math.abs(C * leaderVal - cpopVal);
@@ -118,7 +122,7 @@ public class WOA implements Runnable {
           //encircling behaviour
           else {
             int ix = pop[i][j].randomNonStartIndex();
-            if (ix < 0) {
+            if (ix >= 0) {
               int leaderVal = bestSoln[j].getValue(ix);
               int cpopVal = pop[i][j].getValue(ix);
               double D2Lead = Math.abs(leaderVal - cpopVal);
@@ -140,7 +144,7 @@ public class WOA implements Runnable {
   }
   
   public int[][][] getBestSolution() {
-    return ArrayUtil.copy(bestSoln[0].getSudoku());
+    return bestSoln[0].getSudoku();
   }
   
   public String getCycles() {
@@ -163,8 +167,7 @@ public class WOA implements Runnable {
     for (int i = 0; i < w; i += gridW) {
       for (int j = 0; j < w; j += gridW) {
         //x is j, y is i
-        output[count++] = new SubGrid(sudoku, j * gridW, i * gridW, 
-                                  gridW, true);
+        output[count++] = new SubGrid(sudoku, j, i, gridW);
       }
     }
     return output;
@@ -188,7 +191,7 @@ public class WOA implements Runnable {
       nonStarts = new ArrayList<String>();
       for (int i = x; i < x + w; ++i) {
         for (int j = 0; j < y + w; ++j) {
-          if (sudoku[i][j][1] == 0) { 
+          if (sudoku[i][j][1] == 1) { 
             //add to nonStarts for picking random index later
             int ix = (i - x) + (j - y) * w;
             nonStarts.add(ix + "");
@@ -227,8 +230,9 @@ public class WOA implements Runnable {
       boolean[] filled = new boolean[w * w];
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
-          if (sudoku[i][j][0] > 0)
+          if (sudoku[i][j][0] > 0) {
             filled[sudoku[i][j][0] - 1] = true;
+          }
         }
       }
       ArrayList<String> toFill = new ArrayList<>(); //String lul
@@ -240,11 +244,12 @@ public class WOA implements Runnable {
       
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
-          if (sudoku[i][j][1] == 0) { //if not given assign random value
+          if (sudoku[i][j][1] == 1) { //if not given assign random value
             //get random value from toFill then remove it from toFill
             int randIX = (int)(Math.random() * toFill.size());
             try {
-              sudoku[i][j][0] = Integer.parseInt(toFill.remove(randIX));
+              int val = Integer.parseInt(toFill.remove(randIX));
+              sudoku[i][j][0] = val;
             } catch (NumberFormatException e) {
               //this shouldnt happen unless something very wrong happened
               e.printStackTrace();
@@ -278,7 +283,7 @@ public class WOA implements Runnable {
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
           if (sudoku[i][j][0] == val) { //swap
-            isGiven = (sudoku[i][j][1] == 1);
+            isGiven = (sudoku[i][j][1] == 0);
             if (!isGiven) { //only swap if the number is not a given
               sudoku[i][j][0] = currVal; //assign old value to swap target
               sudoku[x + xOff][y + yOff][0] = val; // assign new value
