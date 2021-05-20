@@ -22,4 +22,26 @@ public class ArrayUtil {
       System.out.println();
     }
   }
+  
+  
+  public static void countNumbers(int[][][] sudoku) {
+    int size = sudoku.length;
+    int rows[][] = new int[size][size];
+    int cols[][] = new int[size][size];
+    
+    for (int i = 0; i < size; ++i) {
+      for (int j = 0; j < size; ++j) {
+        int val = sudoku[i][j][0] - 1;
+        rows[j][val]++;
+        cols[i][val]++;
+      }
+    }
+    
+    for (int i = 0; i < size; ++i) {
+      for (int j = 0; j < size; ++j) {
+        System.out.println("row " + i + " has " + rows[i][j] + " intances of " + (j + 1));
+        System.out.println("col " + i + " has " + cols[i][j] +  " intances of " + (j + 1));
+      }
+    }
+  }
 }

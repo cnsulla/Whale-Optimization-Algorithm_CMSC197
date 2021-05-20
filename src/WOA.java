@@ -37,10 +37,7 @@ public class WOA implements Runnable {
   public void run() {
     iter = 0;
     Random random = new Random(System.currentTimeMillis());
-    ArrayUtil.printSudoku(sudoku);
     bestSoln = subgridify(ArrayUtil.copy(sudoku), sudokuWidth);
-    System.out.println("filled");
-    ArrayUtil.printSudoku(bestSoln[0].getSudoku());
     //change to positive infinity if minimize
     bestFit = Double.NEGATIVE_INFINITY; 
       
@@ -64,7 +61,8 @@ public class WOA implements Runnable {
         double fitness = fitnessFunc.getFitness(pop[i][0].getSudoku());
         //change to < if minimize
         if (fitness > bestFit) {
-          bestSoln = pop[i];
+          bestSoln = subgridify(ArrayUtil.copy(pop[i][0].getSudoku()), 
+                            sudokuWidth);
           bestFit = fitness;
         }
       }
@@ -144,7 +142,7 @@ public class WOA implements Runnable {
   }
   
   public int[][][] getBestSolution() {
-    return bestSoln[0].getSudoku();
+    return ArrayUtil.copy(bestSoln[0].getSudoku());
   }
   
   public String getCycles() {
@@ -241,6 +239,8 @@ public class WOA implements Runnable {
           toFill.add((i + 1) + "");
         }
       }
+      
+      if (toFill.isEmpty()) return;
       
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
