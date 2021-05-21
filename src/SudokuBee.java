@@ -511,7 +511,14 @@ public class SudokuBee extends Thread{
         int sudoku[][][]=board.getSudokuArray();
         //System.out.println("whats hah");
         int width = sudoku.length;
-        ObjectiveFunction func = MissingNumbersFunction;
+        int objFunct = options.getPenaltyType();        
+        ObjectiveFunction func;
+        if(objFunct == 1)
+          func = new MissingValues();
+        else if(objFunct == 2)
+          func = new SumProduct();
+        else
+          func = new SumProductNoConstraint();
         WOA woa = new WOA(sudoku, func, width, numEmp, numCycle);
         /*
          * WOA woa = new WOA(printer, sudoku, numEmp,
@@ -571,7 +578,15 @@ public class SudokuBee extends Thread{
          *      numEmp,numOnlook, numCycle, options.getPenaltyType());
          */
         int width = board.getSudokuArray().length;
-        ObjectiveFunction func = MissingNumbersFunction;
+        int objFunct = options.getPenaltyType();        
+        ObjectiveFunction func;
+        if(objFunct == 1)
+          func = new MissingValues();
+        else if(objFunct == 2)
+          func = new SumProduct();
+        else
+          func = new SumProductNoConstraint();
+        
         WOA woa = new WOA(board.getSudokuArray(), func, width, numEmp, numCycle);
         Thread Twoa = new Thread(woa);
         Twoa.start();
