@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 import java.util.Random;
-import fitnessfunc.ObjectiveFunction;
+import fitnessfunc.*;
 
 public class WOA implements Runnable {
-  public static final double B_CONSTANT = 1.;
+  public static final double B_CONSTANT = 0.2;
   public final int population;
   public final int maximumIteration;
   public final int dimensions;
@@ -61,6 +61,7 @@ public class WOA implements Runnable {
         double fitness = fitnessFunc.getFitness(pop[i][0].getSudoku());
         //change to < if minimize
         if (fitness > bestFit) {
+          //bestSoln = pop[i];
           bestSoln = subgridify(ArrayUtil.copy(pop[i][0].getSudoku()), 
                             sudokuWidth);
           bestFit = fitness;
@@ -112,8 +113,8 @@ public class WOA implements Runnable {
                * before checking the fitness so i dont think this will
                * change anything
                */
-              if (newValue < lowerBound) newValue = lowerBound;
               if (newValue > upperBound) newValue = upperBound;
+              if (newValue < lowerBound) newValue = lowerBound;
               pop[i][j].setValue(updateIX, newValue);
             }
           }
@@ -129,6 +130,8 @@ public class WOA implements Runnable {
                 D2Lead * Math.exp(B_CONSTANT * l) * 
                 Math.cos(2 * Math.PI * l) + leaderVal
               );
+              if (newValue > upperBound) newValue = upperBound;
+              if (newValue < lowerBound) newValue = lowerBound;
               pop[i][j].setValue(ix, newValue);
             }
           }
@@ -161,11 +164,12 @@ public class WOA implements Runnable {
     SubGrid[] output = new SubGrid[w];
     int gridW = (int)Math.sqrt(w);
     
+    boolean constrain =  !(fitnessFunc instanceof SumProductNoConstraint);
     int count = 0;
     for (int i = 0; i < w; i += gridW) {
       for (int j = 0; j < w; j += gridW) {
         //x is j, y is i
-        output[count++] = new SubGrid(sudoku, j, i, gridW);
+        output[count++] = new SubGrid(sudoku, j, i, gridW, constrain);
       }
     }
     return output;
@@ -188,7 +192,7 @@ public class WOA implements Runnable {
       this.w = w;
       nonStarts = new ArrayList<String>();
       for (int i = x; i < x + w; ++i) {
-        for (int j = 0; j < y + w; ++j) {
+        for (int j = y; j < y + w; ++j) {
           if (sudoku[i][j][1] == 1) { 
             //add to nonStarts for picking random index later
             int ix = (i - x) + (j - y) * w;
@@ -222,6 +226,10 @@ public class WOA implements Runnable {
     
     public int[][][] getSudoku() {
       return sudoku;
+    }
+    
+    public ArrayList<String> nonStarts() {
+      return nonStarts;
     }
     
     public void fillConstrained() {
