@@ -883,6 +883,7 @@ public class SudokuBee extends Thread{
             GP.setVisible(5);
             save();
           } */
+          exit.decompose();
           switch(exit.num) {
             case 0:
               GP.setVisible(7);
