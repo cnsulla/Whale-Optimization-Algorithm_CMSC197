@@ -513,9 +513,9 @@ public class SudokuBee extends Thread{
         int width = sudoku.length;
         int objFunct = options.getPenaltyType();        
         ObjectiveFunction func;
-        if(objFunct == 1)
+        if(objFunct == 0)
           func = new MissingValues();
-        else if(objFunct == 2)
+        else if(objFunct == 1)
           func = new SumProduct();
         else
           func = new SumProductNoConstraint();
@@ -580,9 +580,9 @@ public class SudokuBee extends Thread{
         int width = board.getSudokuArray().length;
         int objFunct = options.getPenaltyType();        
         ObjectiveFunction func;
-        if(objFunct == 1)
+        if(objFunct == 0)
           func = new MissingValues();
-        else if(objFunct == 2)
+        else if(objFunct == 1)
           func = new SumProduct();
         else
           func = new SumProductNoConstraint();
