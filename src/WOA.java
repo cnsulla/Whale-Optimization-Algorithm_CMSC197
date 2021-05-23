@@ -56,9 +56,14 @@ public class WOA implements Runnable {
     while (iter < maximumIteration && bestFit < 1.) {
       iter++;
       
+      double weightsTotal = 0.;
       for (int i = 0; i < population; ++i) {
         //pops on the same row of the array share a sudoku
         double fitness = fitnessFunc.getFitness(pop[i][0].getSudoku());
+        //the order wont somehow get switched right?
+        pop[i][0].setWeight(fitness);
+        weightsTotal += fitness;
+        
         //change to < if minimize
         if (fitness > bestFit) {
           //bestSoln = pop[i];
@@ -85,12 +90,21 @@ public class WOA implements Runnable {
         for (int j = 0; j < dimensions; ++j) {
           //eq 2.6
           if (p < 0.5) {
+            
             SubGrid[] lead = bestSoln;
             //use random leader if A >= 1
             if (Math.abs(A) >= 1.) {
-              int leadRandIX = random.nextInt(population);
-              lead = pop[leadRandIX];
+            //use random leader depending on ranking
+              double rand = random.nextDouble() * weightsTotal;
+              for (int k = 0; k < population; ++k) {
+                if (pop[k][0].getWeight() < rand) {
+                  lead = pop[k];
+                  break;
+                }
+                rand -= pop[k][0].getWeight();
+              }
             }
+            
             int updateIX = pop[i][j].randomNonStartIndex();
             /*
              * updateIX should only be < 0 if all values on the SubGrid
@@ -98,12 +112,12 @@ public class WOA implements Runnable {
              * if updateIX < 0
              */
             if (updateIX >= 0) {
-              int leaderVal = lead[j].getValue(updateIX);
-              int cpopVal = pop[i][j].getValue(updateIX);
+              double leaderVal = lead[j].getValue(updateIX);
+              double cpopVal = pop[i][j].getValue(updateIX);
               double D = Math.abs(C * leaderVal - cpopVal);
               //agents[i][j] = lead[j] - A * D
               //SudokuBee uses ceiling
-              int newValue = (int)Math.ceil(leaderVal - A * D);
+              double newValue = leaderVal - A * D;
               /*
                * idk maybe this should be changed #######################
                * the WOA algorithm given enforces the bounds before
@@ -120,14 +134,12 @@ public class WOA implements Runnable {
           else {
             int ix = pop[i][j].randomNonStartIndex();
             if (ix >= 0) {
-              int leaderVal = bestSoln[j].getValue(ix);
-              int cpopVal = pop[i][j].getValue(ix);
+              double leaderVal = bestSoln[j].getValue(ix);
+              double cpopVal = pop[i][j].getValue(ix);
               double D2Lead = Math.abs(leaderVal - cpopVal);
               //eq 2.5
-              int newValue = (int)Math.ceil(
-                D2Lead * Math.exp(B_CONSTANT * l) * 
-                Math.cos(2 * Math.PI * l) + leaderVal
-              );
+              double newValue = D2Lead * Math.exp(B_CONSTANT * l) * 
+                                        Math.cos(2 * Math.PI * l) + leaderVal;
               if (newValue > upperBound) newValue = upperBound;
               if (newValue < lowerBound) newValue = lowerBound;
               pop[i][j].setValue(ix, newValue);
@@ -137,7 +149,6 @@ public class WOA implements Runnable {
       }
     }
   }
-  
   
   public boolean isDone() {
     return iter >= maximumIteration || bestFit >= 1.;
@@ -176,11 +187,13 @@ public class WOA implements Runnable {
   
   private class SubGrid {
     private final int[][][] sudoku;
+    private double[] doubleValues;
     public final int x;
     public final int y;
     public final int w;
     public final boolean constrained;
     private ArrayList<String> nonStarts;
+    private double weight = 0.;
     
     //subgrid expects sudoku to be a valid sudoku array
     public SubGrid(int[][][] sudoku, int x, int y, int w, 
@@ -208,10 +221,29 @@ public class WOA implements Runnable {
       if (constrained && fill) {
         fillConstrained();
       }
+      
+      buildDoubleValues();
     }
     
     public SubGrid(int[][][] sudoku, int x, int y, int w) {
       this(sudoku, x, y, w, true, true);
+    }
+    
+    public void setWeight(double weight) {
+      this.weight = weight;
+    }
+    
+    public double getWeight() {
+      return this.weight;
+    }
+    
+    private void buildDoubleValues() {
+      doubleValues = new double[size()];
+      for (int i = 0; i < size(); ++i) {
+        int xOff = i % w;
+        int yOff = (int)(i / w);
+        doubleValues[i] = (double)sudoku[this.x + xOff][this.y + yOff][0];
+      }
     }
     
     public int randomNonStartIndex() {
@@ -267,14 +299,18 @@ public class WOA implements Runnable {
       }
     }
     
-    public int getValue(int ix) {
-      int xOff = ix % w;
-      int yOff = (int)(ix / w);
-      return sudoku[x + xOff][y + yOff][0];
+    public double getValue(int ix) {
+      //int xOff = ix % w;
+      //int yOff = (int)(ix / w);
+      //return sudoku[x + xOff][y + yOff][0];
+      return doubleValues[ix];
     }
     
-    public void setValue(int ix, int val) {
-      if (val < 0 || val > size()) return;
+    public void setValue(int ix, double dval) {
+      if (dval < 0 || dval > size()) return;
+      
+      doubleValues[ix] = dval;
+      int val = (int)Math.ceil(dval);
       
       int xOff = ix % w;
       int yOff = (int)(ix / w);
