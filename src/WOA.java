@@ -37,14 +37,14 @@ public class WOA implements Runnable {
   public void run() {
     iter = 0;
     Random random = new Random(System.currentTimeMillis());
-    bestSoln = subgridify(ArrayUtil.copy(sudoku), sudokuWidth);
+    bestSoln = subgridify(ArrayUtil.copy(sudoku), sudokuWidth, true);
     //change to positive infinity if minimize
     bestFit = Double.NEGATIVE_INFINITY; 
       
     SubGrid[][] pop = new SubGrid[population][sudokuWidth];
     //initial population initialization
     for (int i = 0; i < population; ++i) {
-      pop[i] = subgridify(ArrayUtil.copy(sudoku), sudokuWidth);
+      pop[i] = subgridify(ArrayUtil.copy(sudoku), sudokuWidth, true);
       //note the subgrid is randomized at SubGrid initialization
     }
     
@@ -53,7 +53,7 @@ public class WOA implements Runnable {
     double a2Delta = -1. / maximumIteration;
     
     //WOA main loop 
-    while (iter < maximumIteration) {
+    while (iter < maximumIteration && bestFit < 1.) {
       iter++;
       
       for (int i = 0; i < population; ++i) {
@@ -63,7 +63,7 @@ public class WOA implements Runnable {
         if (fitness > bestFit) {
           //bestSoln = pop[i];
           bestSoln = subgridify(ArrayUtil.copy(pop[i][0].getSudoku()), 
-                            sudokuWidth);
+                            sudokuWidth, false);
           bestFit = fitness;
         }
       }
@@ -72,7 +72,6 @@ public class WOA implements Runnable {
       double a = 2. - iter * aDelta;
       //i dont get this. the reading(eq 2.5) just says l is random from [-1, 1]
       double a2 = -1. + iter * a2Delta;
-      
       for (int i = 0; i < population; ++i) {
         double r1 = random.nextDouble();
         double r2 = random.nextDouble();
@@ -82,7 +81,6 @@ public class WOA implements Runnable {
         
         //parameter for encircling behaviour
         double l = (a2 - 1) * random.nextDouble() + 1;
-        
         double p = random.nextDouble();
         for (int j = 0; j < dimensions; ++j) {
           //eq 2.6
@@ -140,8 +138,9 @@ public class WOA implements Runnable {
     }
   }
   
+  
   public boolean isDone() {
-    return iter >= maximumIteration;
+    return iter >= maximumIteration || bestFit >= 1.;
   }
   
   public int[][][] getBestSolution() {
@@ -160,7 +159,7 @@ public class WOA implements Runnable {
     //let the garbage collector handle it
   }
   
-  private SubGrid[] subgridify(int[][][] sudoku, int w) {
+  private SubGrid[] subgridify(int[][][] sudoku, int w, boolean fill) {
     SubGrid[] output = new SubGrid[w];
     int gridW = (int)Math.sqrt(w);
     
@@ -169,7 +168,7 @@ public class WOA implements Runnable {
     for (int i = 0; i < w; i += gridW) {
       for (int j = 0; j < w; j += gridW) {
         //x is j, y is i
-        output[count++] = new SubGrid(sudoku, j, i, gridW, constrain);
+        output[count++] = new SubGrid(sudoku, j, i, gridW, constrain, fill);
       }
     }
     return output;
@@ -184,7 +183,8 @@ public class WOA implements Runnable {
     private ArrayList<String> nonStarts;
     
     //subgrid expects sudoku to be a valid sudoku array
-    public SubGrid(int[][][] sudoku, int x, int y, int w, boolean constrain) {
+    public SubGrid(int[][][] sudoku, int x, int y, int w, 
+            boolean constrain, boolean fill) {
       this.sudoku = sudoku;
       this.constrained = constrain;
       this.x = x;
@@ -197,7 +197,7 @@ public class WOA implements Runnable {
             //add to nonStarts for picking random index later
             int ix = (i - x) + (j - y) * w;
             nonStarts.add(ix + "");
-            if (!constrained) {
+            if (!constrained && fill) {
               //if not constrained fill with random value
               sudoku[i][j][0] = (int)(Math.random() * w * w) + 1;
             }
@@ -205,13 +205,13 @@ public class WOA implements Runnable {
         }
       }
       
-      if (constrained) {
+      if (constrained && fill) {
         fillConstrained();
       }
     }
     
     public SubGrid(int[][][] sudoku, int x, int y, int w) {
-      this(sudoku, x, y, w, true);
+      this(sudoku, x, y, w, true, true);
     }
     
     public int randomNonStartIndex() {
@@ -236,7 +236,7 @@ public class WOA implements Runnable {
       boolean[] filled = new boolean[w * w];
       for (int i = x; i < x + w; ++i) {
         for (int j = y; j < y + w; ++j) {
-          if (sudoku[i][j][0] > 0) {
+          if (sudoku[i][j][0] > 0 && sudoku[i][j][1] == 0) {
             filled[sudoku[i][j][0] - 1] = true;
           }
         }
