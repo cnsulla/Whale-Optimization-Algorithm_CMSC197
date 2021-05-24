@@ -116,8 +116,14 @@ public class WOA implements Runnable {
                * before checking the fitness so i dont think this will
                * change anything
                */
-              if (newValue > upperBound) newValue = upperBound;
-              if (newValue < lowerBound) newValue = lowerBound;
+              //wrap around instead of clip
+              double range = (upperBound - lowerBound);
+              if (newValue < 0) {
+                double mod = newValue % range;
+                newValue = range + mod + lowerBound;
+              } else {
+                newValue = (newValue % range) + lowerBound;
+              }
               pop[i][j].setValue(updateIX, newValue);
             }
           }
@@ -132,8 +138,13 @@ public class WOA implements Runnable {
               //eq 2.5
               double newValue = D2Lead * Math.exp(B_CONSTANT * l) * 
                                         Math.cos(2 * Math.PI * l) + leaderVal;
-              if (newValue > upperBound) newValue = upperBound;
-              if (newValue < lowerBound) newValue = lowerBound;
+              //wrap around instead of clip
+              if (newValue < 0) {
+                double mod = newValue % (upperBound - lowerBound);
+                newValue = (upperBound - lowerBound) + mod + lowerBound;
+              } else {
+                newValue = (newValue % (upperBound - lowerBound)) + lowerBound;
+              }
               pop[i][j].setValue(ix, newValue);
             }
           }
@@ -204,7 +215,8 @@ public class WOA implements Runnable {
             nonStarts.add(ix + "");
             if (!constrained && fill) {
               //if not constrained fill with random value
-              sudoku[i][j][0] = (int)(Math.random() * w * w) + 1;
+              double out = Math.random() * w * w;
+              sudoku[i][j][0] = (int)(out) + 1;
             }
           }
         }
