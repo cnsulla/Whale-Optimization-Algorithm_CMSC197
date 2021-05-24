@@ -69,7 +69,9 @@ public class WOA implements Runnable {
       }
       
       //eq 2.3 a linearly decreases from 2 to 0
-      double a = 2. - iter * aDelta;
+      //double a = 2. - iter * aDelta;
+      double progress = (double)iter / maximumIteration;
+      double a = 2. * Math.cos(0.5 * progress * Math.PI);
       //i dont get this. the reading(eq 2.5) just says l is random from [-1, 1]
       double a2 = -1. + iter * a2Delta;
       for (int i = 0; i < population; ++i) {
@@ -85,19 +87,22 @@ public class WOA implements Runnable {
         for (int j = 0; j < dimensions; ++j) {
           //eq 2.6
           if (p < 0.5) {
-            SubGrid[] lead = bestSoln;
-            //use random leader if A >= 1
-            if (Math.abs(A) >= 1.) {
-              int leadRandIX = random.nextInt(population);
-              lead = pop[leadRandIX];
-            }
-            int updateIX = pop[i][j].randomNonStartIndex();
-            /*
-             * updateIX should only be < 0 if all values on the SubGrid
-             * are given, so there would be no need to update the value
-             * if updateIX < 0
-             */
-            if (updateIX >= 0) {
+            //update all values in the subgrid 
+            //except for start squares
+            for (int updateIX = 0; updateIX < pop[i][j].size(); ++updateIX) {
+              if (pop[i][j].isStartSquare(updateIX)) continue; //dont update start squares
+              
+              SubGrid[] lead = bestSoln;
+              //use random leader if A >= 1
+              if (Math.abs(A) >= 1.) {
+                int leadRandIX = random.nextInt(population);
+                lead = pop[leadRandIX];
+              }
+              /*
+               * updateIX should only be < 0 if all values on the SubGrid
+               * are given, so there would be no need to update the value
+               * if updateIX < 0
+               */
               double leaderVal = lead[j].getValue(updateIX);
               double cpopVal = pop[i][j].getValue(updateIX);
               double D = Math.abs(C * leaderVal - cpopVal);
@@ -118,8 +123,9 @@ public class WOA implements Runnable {
           }
           //encircling behaviour
           else {
-            int ix = pop[i][j].randomNonStartIndex();
-            if (ix >= 0) {
+            for (int ix = 0; ix < pop[i][j].size(); ++ix) {
+              if (pop[i][j].isStartSquare(ix)) continue; 
+              
               double leaderVal = bestSoln[j].getValue(ix);
               double cpopVal = pop[i][j].getValue(ix);
               double D2Lead = Math.abs(leaderVal - cpopVal);
@@ -276,6 +282,13 @@ public class WOA implements Runnable {
           }
         }
       }
+    }
+    
+    public boolean isStartSquare(int ix) {
+      int xOff = ix % w;
+      int yOff = (int)(ix / w);
+      
+      return (sudoku[x + xOff][y + yOff][1] != 1);
     }
     
     public double getValue(int ix) {
