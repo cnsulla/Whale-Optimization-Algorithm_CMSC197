@@ -10,11 +10,15 @@ public class WOA implements Runnable {
   public final int lowerBound;
   public final int upperBound;
   public final int sudokuWidth;
+  private final ObjectiveFunction fitnessFunc;
   private int[][][] sudoku;
   private SubGrid[] bestSoln;
   private double bestFit;
   private int iter;
-  private ObjectiveFunction fitnessFunc;
+  private double aVal = 0.;
+  public double getAVal() {
+    return aVal;
+  }
   /*
    *  sudokuWidth should be equal to x if the 
    *  sudoku grid is x * x
@@ -51,11 +55,11 @@ public class WOA implements Runnable {
     //these variables remain constant and i dont like floating point division
     double aDelta = 2. / maximumIteration;
     double a2Delta = -1. / maximumIteration;
-    
     //WOA main loop 
     while (iter < maximumIteration && bestFit < 1.) {
       iter++;
       
+      double weightTotal = 0.;
       for (int i = 0; i < population; ++i) {
         //pops on the same row of the array share a sudoku
         double fitness = fitnessFunc.getFitness(pop[i][0].getSudoku());
@@ -66,12 +70,91 @@ public class WOA implements Runnable {
                             sudokuWidth, false);
           bestFit = fitness;
         }
+        pop[i][0].setWeight(fitness);
+        weightTotal += fitness;
+      }
+      
+      double Cr = 0.01;
+      double F = 0.5;
+      SubGrid[][] mutate = new SubGrid[population][dimensions];
+      for (int i = 0; i < population; ++i) {
+        //DE/rand/1
+        int r1IX = -1;
+        int r2IX = -1;
+        int r3IX = -1;
+        //
+        //pick r1IX
+        do {
+          double rand = random.nextDouble() * weightTotal;
+          for (int ix = 0; ix < population; ++ix) {
+            if (rand < pop[ix][0].getWeight()) {
+              r1IX = ix;
+              break;
+            }
+            rand -= pop[ix][0].getWeight();
+          }
+        } while (r1IX < 0 || r1IX == i);
+        //pick r2IX
+        do {
+          double rand = random.nextDouble() * weightTotal;
+          for (int ix = 0; ix < population; ++ix) {
+            if (rand < pop[ix][0].getWeight()) {
+              r2IX = ix;
+              break;
+            }
+            rand -= pop[ix][0].getWeight();
+          }
+        } while (r2IX < 0 || r2IX == i || r2IX == r1IX);
+        //pick r3IX
+        do {
+          double rand = random.nextDouble() * weightTotal;
+          for (int ix = 0; ix < population; ++ix) {
+            if (rand < pop[ix][0].getWeight()) {
+              r3IX = ix;
+              break;
+            }
+            rand -= pop[ix][0].getWeight();
+          }
+        } while (r3IX < 0 || r3IX == i || r3IX == r2IX || r3IX == r1IX);
+        
+        //do DE mutation
+        mutate[i] = subgridify(ArrayUtil.copy(pop[i][0].getSudoku()),
+                                    sudokuWidth, false);
+        int jRand = random.nextInt(dimensions * sudokuWidth);
+        for (int j = 0; j < dimensions; ++j) {
+          for (int k = 0; k < sudokuWidth; ++k) {
+            double rand = random.nextDouble();
+            if (mutate[i][j].isStartSquare(k)) continue;
+            if (rand < Cr || jRand == j * sudokuWidth + k) {
+              double newVal = pop[r1IX][j].getValue(k) + 
+                                      F * (pop[r2IX][j].getValue(k) - 
+                                              pop[r3IX][j].getValue(k));
+              double range = (upperBound - lowerBound);
+              if (newVal < 0) {
+                double mod = newVal % range;
+                newVal = range + mod + lowerBound;
+              } else {
+                newVal = (newVal % range) + lowerBound;
+              }
+              mutate[i][j].setValue(k, newVal);
+            }
+          }
+        }
+      }
+      for (int i = 0; i < population; ++i) {
+        double xFit = fitnessFunc.getFitness(pop[i][0].getSudoku());
+        double uFit = fitnessFunc.getFitness(mutate[i][0].getSudoku());
+        if (uFit > xFit) {
+          //replace with mutated value if its less fit
+          pop[i] = mutate[i];
+        }
       }
       
       //eq 2.3 a linearly decreases from 2 to 0
       //double a = 2. - iter * aDelta;
       double progress = (double)iter / maximumIteration;
       double a = 2. * Math.cos(0.5 * progress * Math.PI);
+      aVal = a;
       //i dont get this. the reading(eq 2.5) just says l is random from [-1, 1]
       double a2 = -1. + iter * a2Delta;
       for (int i = 0; i < population; ++i) {
@@ -153,7 +236,6 @@ public class WOA implements Runnable {
     }
   }
   
-  
   public boolean isDone() {
     return iter >= maximumIteration || bestFit >= 1.;
   }
@@ -197,6 +279,7 @@ public class WOA implements Runnable {
     public final boolean constrained;
     private ArrayList<String> nonStarts;
     private double[] doubleValues;
+    private double weight = 0.;
     
     //subgrid expects sudoku to be a valid sudoku array
     public SubGrid(int[][][] sudoku, int x, int y, int w, 
@@ -216,7 +299,7 @@ public class WOA implements Runnable {
             if (!constrained && fill) {
               //if not constrained fill with random value
               double out = Math.random() * w * w;
-              sudoku[i][j][0] = (int)(out) + 1;
+              this.sudoku[i][j][0] = (int)out + 1;
             }
           }
         }
@@ -343,8 +426,15 @@ public class WOA implements Runnable {
             return;
           }
         }        
-      }
-      
+      } 
+    }
+    
+    public void setWeight(double val) {
+      this.weight = val;
+    }
+    
+    public double getWeight() {
+      return this.weight;
     }
     
     public int width() {

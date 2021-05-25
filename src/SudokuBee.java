@@ -532,6 +532,11 @@ public class SudokuBee extends Thread{
         delay(100);
         while(!woa.isDone()){
           delay(100);
+          /*
+           * System.out.println(woa.getCycles());
+           * System.out.println("a " + woa.getAVal());
+           * System.out.println("fit " + woa.getFitness());
+           */
           animate.changePic(woa.getBestSolution());
         }
         animate.decompose();

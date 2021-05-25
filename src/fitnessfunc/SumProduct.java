@@ -13,18 +13,18 @@ public class SumProduct implements ObjectiveFunction{
         }
     }   
 
+    double correctSum = size * (size + 1) / 2.0;
     int rowSum = 0;
     for(int i = 0; i < rowSums.length; i++){
-        rowSum+= rowSums[i];
+        rowSum+= Math.abs(rowSums[i] - correctSum);
     }
 
     int colSum = 0;
     for(int i = 0; i < colSums.length; i++){
-        colSum+= colSums[i];
+        colSum+= Math.abs(colSums[i] - correctSum);
     }
     
-    double correctSum = size * (size + 1) / 2.0;
-    double fitness = 1.0 / (1 + Math.abs(rowSum - correctSum) + Math.abs(colSum - correctSum));
+    double fitness = 1.0 / (1 + Math.abs(rowSum) + Math.abs(colSum));
     
     return fitness;
   }
